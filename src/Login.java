@@ -1,6 +1,10 @@
 import javax.swing.*;
 import javax.swing.border.Border;
 import java.awt.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class Login extends JFrame {
     private JTextField username;
@@ -151,12 +155,18 @@ public class Login extends JFrame {
         String user = username.getText();
         String pass = new String(password.getPassword());
 
-        if (user.equals("admin") && pass.equals("password")) {
+        if (dbConnection.LoginUser(user, pass)) {
             message.setText("Login Successful");
+            JOptionPane.showMessageDialog(this, "Welcome, " + user + "!", "Login Success", JOptionPane.INFORMATION_MESSAGE);
+            // Open the next screen (e.g., dashboard)
         } else {
             message.setText("Invalid Username or Password");
+            JOptionPane.showMessageDialog(this, "Invalid login credentials!", "Login Failed", JOptionPane.ERROR_MESSAGE);
         }
     }
+
+
+
 
 
 

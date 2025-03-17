@@ -1,7 +1,6 @@
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.Properties;
+import java.sql.DriverManager;
 //This class is
 
 /**
@@ -41,7 +40,36 @@ public class dbConnection {
         finally{
             return con;
         }
+
+
+    }
+
+    public static boolean LoginUser(String Username, String Password) {
+        String query = "SELECT * FROM Users WHERE Username = ? AND Password = ?";
+
+        try (Connection connection = getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+
+            preparedStatement.setString(1, Username);
+            preparedStatement.setString(2, Password); // Use hashing if needed
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+            return resultSet.next(); // If a record exists, login is successful
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
 
+
+
+
+
 }
+
+
+
+
+
