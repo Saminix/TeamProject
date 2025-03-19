@@ -15,33 +15,30 @@ public class dbConnection {
     private static final String PASSWORD = "lonmF2uLJSc";
 
 
+
     public static Connection getConnection() throws SQLException {
         Connection con = null;
         try {
-            Class.forName("com.mysql.jdbc.Driver");
+            Class.forName("com.mysql.cj.jdbc.Driver");
 
             Properties connectionProps = new Properties();
-            connectionProps.put("username", USERNAME);
+            connectionProps.put("user", USERNAME);
             connectionProps.put("password", PASSWORD);
 
             con = DriverManager.getConnection(URL, connectionProps);
             System.out.println("Connection Successful...");
+            return con;
         }
         catch(SQLException sql) {
             System.out.println("Database Connection has Failed...");
-            //display the error
             sql.printStackTrace();
-
+            throw sql;
         }
         catch (ClassNotFoundException sql){
             System.out.println("Driver is not found!");
             sql.printStackTrace();
+            throw new SQLException("JDBC Driver not found", sql);
         }
-        finally{
-            return con;
-        }
-
-
     }
 
     public static boolean LoginUser(String Username, String Password) {
@@ -51,10 +48,10 @@ public class dbConnection {
              PreparedStatement preparedStatement = connection.prepareStatement(query)) {
 
             preparedStatement.setString(1, Username);
-            preparedStatement.setString(2, Password); // Use hashing if needed
+            preparedStatement.setString(2, Password);
 
             ResultSet resultSet = preparedStatement.executeQuery();
-            return resultSet.next(); // If a record exists, login is successful
+            return resultSet.next();
 
         } catch (SQLException e) {
             e.printStackTrace();
