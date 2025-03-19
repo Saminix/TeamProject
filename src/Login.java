@@ -1,3 +1,4 @@
+
 import javax.swing.*;
 import javax.swing.border.Border;
 import java.awt.*;
@@ -5,7 +6,11 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
+/**
+ * Login
+ * Will allow the User to Login with username and password
+ * DB connection is a priority.
+ */
 public class Login extends JFrame {
     private JTextField username;
     private JPasswordField password;
@@ -16,30 +21,30 @@ public class Login extends JFrame {
     Login() {
         setTitle("Lancaster's Music Hall");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(970, 600); // Increased width for better spacing
+        setSize(970, 600);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
 
-        // Left Panel (Image)
+
         JPanel imagePanel = new JPanel();
         imagePanel.setBackground(new Color(17, 32, 35));
-        imagePanel.setPreferredSize(new Dimension(480, 400)); // Increased width
+        imagePanel.setPreferredSize(new Dimension(480, 400));
         imagePanel.setLayout(new BorderLayout());
 
-        // Load and set the image
+
         ImageIcon imageIcon = new ImageIcon("data/Lancaster'sLogo.png");
         Image image = imageIcon.getImage().getScaledInstance(480, 400, Image.SCALE_SMOOTH);
         JLabel imageLabel = new JLabel(new ImageIcon(image));
-        imageLabel.setHorizontalAlignment(JLabel.CENTER); // Center the image
+        imageLabel.setHorizontalAlignment(JLabel.CENTER);
 
         imagePanel.add(imageLabel, BorderLayout.CENTER);
 
-        // Right Panel (Login Form)
+
         JPanel loginPanel = new JPanel();
         loginPanel.setBackground(new Color(229, 228, 226));
-        loginPanel.setLayout(null); // Use null layout for manual positioning
+        loginPanel.setLayout(null);
 
-        // Create labels
+
         labelUsername = new JLabel("Username ");
         labelUsername.setFont(new Font("Arial", Font.PLAIN, 20));
         labelUsername.setBounds(55, 150, 150, 30);
@@ -48,9 +53,9 @@ public class Login extends JFrame {
         labelPassword.setFont(new Font("Arial", Font.PLAIN, 20));
         labelPassword.setBounds(55, 200, 150, 30);
 
-        // Create text fields
+
         username = new JTextField();
-        username.setFont(new Font("Arial", Font.PLAIN, 22));
+        username.setFont(new Font("Arial", Font.PLAIN, 15));
 
         username.setBounds(165, 150, 250, 30);
         username.setBorder(BorderFactory.createCompoundBorder(
@@ -60,7 +65,7 @@ public class Login extends JFrame {
 
 
         password = new JPasswordField();
-        password.setFont(new Font("Arial", Font.PLAIN, 22));
+        password.setFont(new Font("Arial", Font.PLAIN, 15));
         password.setBounds(165, 200, 250, 30);
 
         password.setBorder(BorderFactory.createCompoundBorder(
@@ -68,7 +73,7 @@ public class Login extends JFrame {
                 BorderFactory.createEmptyBorder(5, 10, 5, 10)
         ));
 
-        // Show password checkbox
+
         showPassword = new JCheckBox("Show Password");
         showPassword.setBounds(165, 240, 150, 30);
         showPassword.setFont(new Font("Arial", Font.PLAIN, 16));
@@ -76,7 +81,7 @@ public class Login extends JFrame {
             password.setEchoChar(showPassword.isSelected() ? (char) 0 : '*');
         });
 
-        // Buttons
+
         loginButton = new JButton("Login");
         loginButton.setBounds(165, 280, 100, 40);
         loginButton.addActionListener(e -> handleLogin());
@@ -101,7 +106,7 @@ public class Login extends JFrame {
                 BorderFactory.createEmptyBorder(5, 15, 5, 15)
         ));
 
-        // Message label
+
         message = new JLabel("Lancaster's Music Hall 2025", SwingConstants.CENTER);
         message.setBounds(105, 330, 300, 30);
 
@@ -118,20 +123,20 @@ public class Login extends JFrame {
 
         loginButton.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
-                loginButton.setBackground(new Color( 1, 25, 16)); // Darker blue on hover
+                loginButton.setBackground(new Color( 1, 25, 16));
             }
             public void mouseExited(java.awt.event.MouseEvent evt) {
-                loginButton.setBackground(new Color(2, 75, 48)); // Original blue
+                loginButton.setBackground(new Color(2, 75, 48));
             }
         });
 
 
         resetButton.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
-                resetButton.setBackground(new Color( 1, 25, 16)); // Darker blue on hover
+                resetButton.setBackground(new Color( 1, 25, 16));
             }
             public void mouseExited(java.awt.event.MouseEvent evt) {
-                resetButton.setBackground(new Color(2, 75, 48)); // Original blue
+                resetButton.setBackground(new Color(2, 75, 48));
             }
         });
 
@@ -144,9 +149,9 @@ public class Login extends JFrame {
         loginPanel.add(resetButton);
         loginPanel.add(message);
 
-        // Add panels to the frame
-        add(imagePanel, BorderLayout.WEST); // Image on the left
-        add(loginPanel, BorderLayout.CENTER); // Login form on the right
+
+        add(imagePanel, BorderLayout.WEST);
+        add(loginPanel, BorderLayout.CENTER);
 
         setVisible(true);
     }
@@ -158,15 +163,12 @@ public class Login extends JFrame {
         if (dbConnection.LoginUser(user, pass)) {
             message.setText("Login Successful");
             JOptionPane.showMessageDialog(this, "Welcome, " + user + "!", "Login Success", JOptionPane.INFORMATION_MESSAGE);
-            // Open the next screen (e.g., dashboard)
+
         } else {
             message.setText("Invalid Username or Password");
             JOptionPane.showMessageDialog(this, "Invalid login credentials!", "Login Failed", JOptionPane.ERROR_MESSAGE);
         }
     }
-
-
-
 
 
 
