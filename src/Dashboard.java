@@ -7,7 +7,7 @@ import java.time.format.DateTimeFormatter;
 
 
 /**
- * This is the Dashboard file.
+ * This is the Dashboard file. Run this file.
  * Subject to change for better implementation and focus of data.
  */
 public class Dashboard {
