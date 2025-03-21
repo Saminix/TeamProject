@@ -105,14 +105,6 @@ public class NavigationBar extends JPanel {
 
 
 
-        File file = new File("data/home.png");
-        if (file.exists()) {
-            System.out.println("File exists: " + file.getAbsolutePath());
-        } else {
-            System.err.println("File not found: " + file.getAbsolutePath());
-        }
-
-
         for (int i = 0; i < navItems.length; i++) {
             ImageIcon icon = null;
             try {
