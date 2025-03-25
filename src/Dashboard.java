@@ -1,4 +1,9 @@
 
+import UI.PatronPage;
+import UI.ReportsPage;
+import UI.SeatingPage;
+import UI.TicketsPage;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -80,9 +85,9 @@ public class Dashboard {
         titleBar.setPreferredSize(new Dimension(0, 40));
 
         // Add custom title label
-        JLabel titleLabel = new JLabel("Dashboard");
+        JLabel titleLabel = new JLabel("Lancaster Music Hall OS");
         titleLabel.setForeground(Color.WHITE);
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 20));
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 15));
         titleLabel.setBorder(BorderFactory.createEmptyBorder(0, 15, 0, 0));
         titleBar.add(titleLabel, BorderLayout.WEST);
 
@@ -237,33 +242,26 @@ public class Dashboard {
         return card;
     }
 
+
+
+
+    //creation of Pages - !!! DO NOT MODIFY or EDIT
+
     private static JPanel createReportsPage() {
-        JPanel reportsPanel = new JPanel();
-        reportsPanel.setBackground(BACKGROUND_COLOR);
-        reportsPanel.add(new JLabel("Reports Page"));
-        return reportsPanel;
+        return new ReportsPage();
     }
 
     private static JPanel createTicketsPage() {
-        JPanel TicketsPanel = new JPanel();
-        TicketsPanel.setBackground(BACKGROUND_COLOR);
-        TicketsPanel.add(new JLabel("Tickets Page"));
-        return TicketsPanel;
+        return new TicketsPage();
     }
 
     private static JPanel createPatronPage() {
-        JPanel patronPanel = new JPanel();
-        patronPanel.setBackground(BACKGROUND_COLOR);
-        patronPanel.add(new JLabel("Patron Page"));
-        return patronPanel;
+        return new PatronPage();
     }
 
 
     private static JPanel createSeatingPage() {
-        JPanel seatingPanel = new JPanel();
-        seatingPanel.setBackground(BACKGROUND_COLOR);
-        seatingPanel.add(new JLabel("Seating Page"));
-        return seatingPanel;
+        return new SeatingPage();
     }
 
 
@@ -276,10 +274,7 @@ public class Dashboard {
 
 
     private static JPanel createRefundsPage() {
-        JPanel refundPanel = new JPanel();
-        refundPanel.setBackground(BACKGROUND_COLOR);
-        refundPanel.add(new JLabel("Refunds Page"));
-        return refundPanel;
+       return new ReportsPage();
     }
 
 
