@@ -146,7 +146,7 @@ public class Dashboard {
 
         topSection.add(cardPanel, BorderLayout.CENTER);
 
-        // Add the top section to the dashboard content
+
         dashboardContent.add(topSection, BorderLayout.NORTH);
 
         // Create a panel for the table
@@ -191,11 +191,11 @@ public class Dashboard {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-                // Add shadow
+
                 g2.setColor(new Color(0, 0, 0, 50));
                 g2.fillRoundRect(4, 4, getWidth(), getHeight(), 15, 15);
 
-                // Fill card
+
                 g2.setColor(CARD_COLOR);
                 g2.fillRoundRect(0, 0, getWidth(), getHeight(), 15, 15);
 
@@ -306,7 +306,7 @@ public class Dashboard {
         }
     }
 
-    // Custom TitleBar class
+
     private static class TitleBar extends JPanel {
         public TitleBar() {
             setLayout(new BorderLayout());

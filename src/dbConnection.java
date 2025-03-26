@@ -10,7 +10,7 @@ import java.sql.DriverManager;
 
 public class dbConnection {
 
-    private static final String URL = "jdbc:mysql://smcse-stuproj00.city.ac.uk:3306/in2033t10";
+    private static final String URL = "jdbc:mysql://sst-stuproj00.city.ac.uk:3306/in2033t10";
     private static final String USERNAME = "in2033t10_a";
     private static final String PASSWORD = "lonmF2uLJSc";
 
