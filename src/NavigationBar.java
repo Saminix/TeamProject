@@ -3,6 +3,7 @@ import Swing.ScrollBar;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+
 import java.io.File;
 /**
  * NavigationBar is for subpages and easy navigation.
