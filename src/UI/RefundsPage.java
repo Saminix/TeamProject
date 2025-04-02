@@ -1,5 +1,5 @@
 package UI;
-
+import db.dbConnection;
 import javax.swing.*;
 
 /**
@@ -10,4 +10,6 @@ import javax.swing.*;
  */
 public class RefundsPage extends JPanel {
     // to be implemented...
+
+
 }

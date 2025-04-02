@@ -3,6 +3,9 @@ import UI.PatronPage;
 import UI.ReportsPage;
 import UI.SeatingPage;
 import UI.TicketsPage;
+import java.sql.SQLException;
+
+import db.dbConnection;
 
 import javax.swing.*;
 import java.awt.*;
@@ -177,7 +180,7 @@ public class Dashboard {
         JScrollPane tableScrollPane = new JScrollPane(table);
         tablePanel.add(tableScrollPane, BorderLayout.CENTER);
 
-        // Add some data to the table
+        // Add some data to the table - not from the database at all - can be deleted.
         ((javax.swing.table.DefaultTableModel) table.getModel()).addRow(new Object[]{"Mike Bhand", "mikebhand@gmail.com", "Patron", "25 Apr, 2021"});
         ((javax.swing.table.DefaultTableModel) table.getModel()).addRow(new Object[]{"Andrew Strauss", "andrewstrauss@gmail.com", "Patron", "25 Apr, 2021"});
         ((javax.swing.table.DefaultTableModel) table.getModel()).addRow(new Object[]{"Ross Kopelman", "rosskopelman@gmail.com", "FriendOfLancaster", "25 Apr, 2024"});
@@ -246,6 +249,8 @@ public class Dashboard {
 
 
     //creation of Pages - !!! DO NOT MODIFY or EDIT
+    // only modify when you want to implement the database retrieval from the database by adding SQLException
+    // look at the createPatronPage below and use this format to change your page with a try-catch exception.
 
     private static JPanel createReportsPage() {
         return new ReportsPage();
@@ -255,12 +260,22 @@ public class Dashboard {
         return new TicketsPage();
     }
 
+
+
     private static JPanel createPatronPage() {
-        return new PatronPage();
+        try {
+            return new PatronPage();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JPanel errorPanel = new JPanel();
+            errorPanel.add(new JLabel("Database error: " + e.getMessage()));
+            return errorPanel;
+        }
     }
 
 
     private static JPanel createSeatingPage() {
+
         return new SeatingPage();
     }
 
