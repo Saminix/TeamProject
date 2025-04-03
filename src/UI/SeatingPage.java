@@ -1,6 +1,5 @@
 package UI;
 
-
 import db.dbConnection;
 import javax.swing.*;
 import java.awt.*;
@@ -21,11 +20,13 @@ public class SeatingPage extends JPanel {
     private int selectedShowId;
     private int selectedVenueId;
 
-    private static final Color AVAILABLE_COLOR = Color.GREEN;
-    private static final Color OCCUPIED_COLOR = Color.RED;
-    private static final Color RESTRICTED_COLOR = Color.DARK_GRAY;
-    private static final Color COMPANION_COLOR = new Color(128, 0, 128); // Purple
-    private static final Color DISABILITY_COLOR = Color.YELLOW;
+    private static final Color AVAILABLE_COLOR = new Color(200, 230, 201); // Light green
+    private static final Color OCCUPIED_COLOR = new Color(239, 83, 80);    // Modern red
+    private static final Color RESTRICTED_COLOR = new Color(66, 66, 66);  // Dark gray
+    private static final Color COMPANION_COLOR = new Color(171, 71, 188); // Modern purple
+    private static final Color DISABILITY_COLOR = new Color(255, 202, 40); // Bright yellow
+    private static final Color DISCOUNTED_COLOR = new Color(255, 165, 0);  // Orange
+    private static final Color DARK_GREEN = new Color(0, 100, 0);         // Dark green for button
 
     public SeatingPage() throws SQLException {
         connection = dbConnection.getConnection();
@@ -38,131 +39,197 @@ public class SeatingPage extends JPanel {
 
     private void setupUI() {
         setLayout(new BorderLayout());
+        setBackground(Color.WHITE);
 
-        JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JPanel topPanel = new JPanel(new BorderLayout());
+        topPanel.setBackground(Color.WHITE);
+        topPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        JPanel leftPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        leftPanel.setBackground(Color.WHITE);
         showComboBox = new JComboBox<>();
+        showComboBox.setFont(new Font("Arial", Font.PLAIN, 14));
         showComboBox.addActionListener(e -> loadSeatingForShow());
-        topPanel.add(new JLabel("Select Show: "));
-        topPanel.add(showComboBox);
+        leftPanel.add(new JLabel("Select Show: ") {{
+            setFont(new Font("Arial", Font.BOLD, 14));
+            setForeground(new Color(33, 33, 33));
+        }});
+        leftPanel.add(showComboBox);
 
         saveButton = new JButton("Save Configuration");
+        saveButton.setFont(new Font("Arial", Font.BOLD, 14));
+        saveButton.setBackground(DARK_GREEN);
+        saveButton.setForeground(Color.WHITE);
+        saveButton.setFocusPainted(false);
+        saveButton.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createRaisedBevelBorder(),
+                BorderFactory.createEmptyBorder(5, 15, 5, 15)
+        ));
+        saveButton.setPreferredSize(new Dimension(200, 35));
+        saveButton.setOpaque(true);
+        saveButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
         saveButton.addActionListener(e -> saveSeatingConfiguration());
-        topPanel.add(saveButton);
+        leftPanel.add(saveButton);
 
-        // Add a legend panel to explain colors
-        JPanel legendPanel = createLegendPanel();
-        topPanel.add(legendPanel);
+        topPanel.add(leftPanel, BorderLayout.WEST);
 
-        add(topPanel, BorderLayout.NORTH);
-
+        JPanel tabPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        tabPanel.setBackground(Color.WHITE);
         tabbedPane = new JTabbedPane();
+        tabbedPane.setFont(new Font("Arial", Font.BOLD, 14));
         mainHallPanel = createMainHallPanel();
         smallHallPanel = createSmallHallPanel();
-        tabbedPane.addTab("Main Hall", new JScrollPane(mainHallPanel));
-        tabbedPane.addTab("Small Hall", new JScrollPane(smallHallPanel));
+        tabbedPane.addTab("Main Hall", new JScrollPane(mainHallPanel) {{
+            setBorder(BorderFactory.createEmptyBorder());
+        }});
+        tabbedPane.addTab("Small Hall", new JScrollPane(smallHallPanel) {{
+            setBorder(BorderFactory.createEmptyBorder());
+        }});
+        tabPanel.add(tabbedPane);
+        topPanel.add(tabPanel, BorderLayout.EAST);
+
+        add(topPanel, BorderLayout.NORTH);
         add(tabbedPane, BorderLayout.CENTER);
+
+        JPanel legendPanel = createLegendPanel();
+        legendPanel.setPreferredSize(new Dimension(0, 50));
+        add(legendPanel, BorderLayout.SOUTH);
     }
 
     private JPanel createLegendPanel() {
-        JPanel legendPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        legendPanel.setBorder(BorderFactory.createTitledBorder("Legend"));
+        JPanel legendPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 5));
+        legendPanel.setBackground(Color.WHITE);
+        legendPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
 
-        addLegendItem(legendPanel, "Available", AVAILABLE_COLOR);
-        addLegendItem(legendPanel, "Reserved", OCCUPIED_COLOR);
-        addLegendItem(legendPanel, "Restricted", RESTRICTED_COLOR);
-        addLegendItem(legendPanel, "Companion", COMPANION_COLOR);
-        addLegendItem(legendPanel, "Disability", DISABILITY_COLOR);
+        addLegendItem(legendPanel, "Available", Color.GREEN);
+        addLegendItem(legendPanel, "Reserved", Color.RED);
+        addLegendItem(legendPanel, "Restricted", Color.GRAY);
+        addLegendItem(legendPanel, "Companion", Color.BLUE);
+        addLegendItem(legendPanel, "Disability", Color.YELLOW);
+        addLegendItem(legendPanel, "Discounted", Color.ORANGE);
 
         return legendPanel;
     }
 
     private void addLegendItem(JPanel panel, String text, Color color) {
-        JPanel item = new JPanel(new FlowLayout(FlowLayout.LEFT, 2, 0));
+        JPanel item = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
+        item.setBackground(Color.WHITE);
         JLabel colorBox = new JLabel();
         colorBox.setPreferredSize(new Dimension(15, 15));
         colorBox.setOpaque(true);
         colorBox.setBackground(color);
-        colorBox.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+        colorBox.setBorder(BorderFactory.createLineBorder(new Color(33, 33, 33)));
 
         item.add(colorBox);
-        item.add(new JLabel(text));
+        item.add(new JLabel(text) {{
+            setFont(new Font("Arial", Font.PLAIN, 12));
+            setForeground(new Color(33, 33, 33));
+        }});
         panel.add(item);
     }
 
     private JPanel createMainHallPanel() {
-        JPanel mainPanel = new JPanel();
-        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+        JPanel mainPanel = new JPanel(new BorderLayout());
+        mainPanel.setBackground(Color.WHITE);
+        mainPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
+
+        JPanel contentPanel = new JPanel();
+        contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
+        contentPanel.setBackground(Color.WHITE);
 
         JLabel balconyLabel = new JLabel("BALCONY", SwingConstants.CENTER);
-        balconyLabel.setFont(new Font("Arial", Font.BOLD, 14));
-        mainPanel.add(balconyLabel);
+        balconyLabel.setFont(new Font("Arial", Font.BOLD, 16));
+        balconyLabel.setForeground(new Color(33, 33, 33));
+        balconyLabel.setBorder(BorderFactory.createEmptyBorder(10, 0, 5, 0));
+        contentPanel.add(balconyLabel);
 
-        JPanel balconyPanel = new JPanel();
-        balconyPanel.setLayout(new GridLayout(3, 1, 1, 1));
+        JPanel balconyPanel = new JPanel(new GridLayout(3, 1, 1, 1));
+        balconyPanel.setBackground(Color.WHITE);
 
         balconyPanel.add(createRow("CC", 1, 8));
         balconyPanel.add(createRow("BB", 6, 23));
         balconyPanel.add(createRow("AA", 21, 33));
 
-        mainPanel.add(balconyPanel);
-        mainPanel.add(Box.createVerticalStrut(5));
+        contentPanel.add(balconyPanel);
+        contentPanel.add(Box.createVerticalStrut(5));
 
         JLabel stallsLabel = new JLabel("STALLS", SwingConstants.CENTER);
-        stallsLabel.setFont(new Font("Arial", Font.BOLD, 14));
-        mainPanel.add(stallsLabel);
+        stallsLabel.setFont(new Font("Arial", Font.BOLD, 16));
+        stallsLabel.setForeground(new Color(33, 33, 33));
+        stallsLabel.setBorder(BorderFactory.createEmptyBorder(10, 0, 5, 0));
+        contentPanel.add(stallsLabel);
 
-        JPanel stallsPanel = new JPanel();
-        stallsPanel.setLayout(new GridLayout(16, 1, 1, 1));
+        JPanel stallsWithBalconies = new JPanel(new BorderLayout());
+        stallsWithBalconies.setBackground(Color.WHITE);
+
+        JPanel leftBalcony = createSideBalcony("BB", 1, 5, "AA", 1, 20);
+        leftBalcony.setPreferredSize(new Dimension(80, 0));
+        stallsWithBalconies.add(leftBalcony, BorderLayout.WEST);
+
+        JPanel rightBalcony = createSideBalcony("AA", 34, 53, "BB", 24, 28);
+        rightBalcony.setPreferredSize(new Dimension(80, 0));
+        stallsWithBalconies.add(rightBalcony, BorderLayout.EAST);
+
+        JPanel stallsPanel = new JPanel(new GridLayout(16, 1, 1, 1));
+        stallsPanel.setBackground(Color.WHITE);
 
         stallsPanel.add(createRow("Q", 1, 10));
         stallsPanel.add(createRow("P", 1, 11));
-        stallsPanel.add(createSplitRow("O", 1, 16, 17, 20));
-        stallsPanel.add(createSplitRow("N", 1, 14, 17, 19));
-        stallsPanel.add(createSplitRow("M", 1, 12, 15, 16));
+        stallsPanel.add(createSplitRow("O", 1, 16, 17, 20, 0, 0));
+        stallsPanel.add(createSplitRow("N", 4, 14, 1, 3, 17, 19));
+        stallsPanel.add(createSplitRow("M", 3, 12, 1, 2, 15, 16));
 
         char[] rows = {'L', 'K', 'J', 'H', 'G', 'F', 'E', 'D', 'C', 'B', 'A'};
         for (char row : rows) {
-            stallsPanel.add(createSplitRow(row + "", 1, 16, 17, 19));
+            int endSeat = row == 'A' ? 19 : 19;
+            stallsPanel.add(createSplitRow(row + "", 4, 16, 1, 3, 17, endSeat));
         }
 
-        mainPanel.add(stallsPanel);
+        stallsWithBalconies.add(stallsPanel, BorderLayout.CENTER);
+        contentPanel.add(stallsWithBalconies);
 
-        JPanel sidePanel = new JPanel(new BorderLayout());
-        sidePanel.add(mainPanel, BorderLayout.CENTER);
-
-        JPanel leftBalcony = createSideBalcony("BB", 1, 5, "AA", 1, 20);
-        sidePanel.add(leftBalcony, BorderLayout.WEST);
-
-        JPanel rightBalcony = createSideBalcony("AA", 34, 53, "BB", 24, 28);
-        sidePanel.add(rightBalcony, BorderLayout.EAST);
+        mainPanel.add(contentPanel, BorderLayout.CENTER);
 
         JPanel stagePanel = new JPanel(new BorderLayout());
+        stagePanel.setBackground(Color.WHITE);
+
+        JPanel stageContainer = new JPanel(new BorderLayout());
+        stageContainer.setBackground(Color.WHITE);
+        stageContainer.setMaximumSize(new Dimension(200, Integer.MAX_VALUE));
+
         JLabel stageLabel = new JLabel("STAGE", SwingConstants.CENTER);
-        stageLabel.setFont(new Font("Arial", Font.BOLD, 16));
-        stageLabel.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
-        stagePanel.add(new JPanel() {{ setPreferredSize(new Dimension(175, 30)); }}, BorderLayout.WEST);
-        stagePanel.add(stageLabel, BorderLayout.CENTER);
-        stagePanel.add(new JPanel() {{ setPreferredSize(new Dimension(193, 30)); }}, BorderLayout.EAST);
+        stageLabel.setFont(new Font("Arial", Font.BOLD, 20));
+        stageLabel.setForeground(Color.BLACK);
+        stageLabel.setBackground(Color.LIGHT_GRAY);
+        stageLabel.setOpaque(true);
+        stageLabel.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
 
-        JPanel container = new JPanel(new BorderLayout());
-        container.add(sidePanel, BorderLayout.CENTER);
-        container.add(stagePanel, BorderLayout.SOUTH);
+        stageContainer.add(Box.createRigidArea(new Dimension(5, 0)), BorderLayout.WEST);
+        stageContainer.add(stageLabel, BorderLayout.CENTER);
+        stageContainer.add(Box.createRigidArea(new Dimension(5, 0)), BorderLayout.EAST);
 
-        return container;
+        stagePanel.add(stageContainer, BorderLayout.CENTER);
+        mainPanel.add(stagePanel, BorderLayout.SOUTH);
+
+        return mainPanel;
     }
 
     private JPanel createRow(String row, int start, int end) {
         JPanel rowPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 1, 1));
-        rowPanel.add(new JLabel(row));
+        rowPanel.setBackground(Color.WHITE);
+        JLabel label = new JLabel(row);
+        label.setFont(new Font("Arial", Font.BOLD, 12));
+        label.setForeground(new Color(33, 33, 33));
+        rowPanel.add(label);
         for (int i = start; i <= end; i++) {
             String seatCode = row + i;
             JLabel seat = new JLabel(String.valueOf(i), SwingConstants.CENTER);
             seat.setPreferredSize(new Dimension(25, 18));
             seat.setFont(new Font("Arial", Font.BOLD, 9));
             seat.setOpaque(true);
-            seat.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+            seat.setBackground(AVAILABLE_COLOR);
+            seat.setBorder(BorderFactory.createLineBorder(new Color(150, 150, 150)));
             seat.setCursor(new Cursor(Cursor.HAND_CURSOR));
-
             seat.addMouseListener(new MouseAdapter() {
                 @Override
                 public void mouseClicked(MouseEvent e) {
@@ -172,27 +239,51 @@ public class SeatingPage extends JPanel {
             seatButtons.put(seatCode, seat);
             rowPanel.add(seat);
         }
-        rowPanel.add(new JLabel(row));
         return rowPanel;
     }
 
-    private JPanel createSplitRow(String row, int upperStart, int upperEnd, int lowerStart, int lowerEnd) {
+    private JPanel createSplitRow(String row, int upperStart, int upperEnd, int lowerStart1, int lowerEnd1, int lowerStart2, int lowerEnd2) {
         JPanel rowPanel = new JPanel(new GridLayout(2, 1, 0, 0));
+        rowPanel.setBackground(Color.WHITE);
 
-        JPanel upperRow = createRow(row, upperStart, upperEnd);
+        JPanel upperRow = new JPanel(new FlowLayout(FlowLayout.CENTER, 1, 1));
+        upperRow.setBackground(Color.WHITE);
+        JLabel label = new JLabel(row);
+        label.setFont(new Font("Arial", Font.BOLD, 12));
+        label.setForeground(new Color(33, 33, 33));
+        upperRow.add(label);
+        for (int i = upperStart; i <= upperEnd; i++) {
+            String seatCode = row + i;
+            JLabel seat = new JLabel(String.valueOf(i), SwingConstants.CENTER);
+            seat.setPreferredSize(new Dimension(25, 18));
+            seat.setFont(new Font("Arial", Font.BOLD, 9));
+            seat.setOpaque(true);
+            seat.setBackground(AVAILABLE_COLOR);
+            seat.setBorder(BorderFactory.createLineBorder(new Color(150, 150, 150)));
+            seat.setCursor(new Cursor(Cursor.HAND_CURSOR));
+            seat.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    showSeatOptions(seatCode, seat);
+                }
+            });
+            seatButtons.put(seatCode, seat);
+            upperRow.add(seat);
+        }
         rowPanel.add(upperRow);
 
         JPanel lowerRow = new JPanel(new FlowLayout(FlowLayout.CENTER, 1, 1));
-        lowerRow.add(Box.createHorizontalStrut(20));
-        for (int i = 1; i <= 3; i++) {
+        lowerRow.setBackground(Color.WHITE);
+        lowerRow.add(Box.createHorizontalStrut(row.equals("O") ? 465 : row.equals("N") ? 20 : row.equals("M") ? 50 : 20));
+        for (int i = lowerStart1; i <= lowerEnd1; i++) {
             String seatCode = row + i;
             JLabel seat = new JLabel(String.valueOf(i), SwingConstants.CENTER);
             seat.setPreferredSize(new Dimension(25, 18));
             seat.setFont(new Font("Arial", Font.BOLD, 9));
             seat.setOpaque(true);
-            seat.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+            seat.setBackground(AVAILABLE_COLOR);
+            seat.setBorder(BorderFactory.createLineBorder(new Color(150, 150, 150)));
             seat.setCursor(new Cursor(Cursor.HAND_CURSOR));
-
             seat.addMouseListener(new MouseAdapter() {
                 @Override
                 public void mouseClicked(MouseEvent e) {
@@ -202,16 +293,16 @@ public class SeatingPage extends JPanel {
             seatButtons.put(seatCode, seat);
             lowerRow.add(seat);
         }
-        lowerRow.add(Box.createHorizontalStrut(355));
-        for (int i = lowerStart; i <= lowerEnd; i++) {
+        lowerRow.add(Box.createHorizontalStrut(row.equals("O") ? 25 : row.equals("N") ? 300 : row.equals("M") ? 268 : 355));
+        for (int i = lowerStart2; i <= lowerEnd2; i++) {
             String seatCode = row + i;
             JLabel seat = new JLabel(String.valueOf(i), SwingConstants.CENTER);
             seat.setPreferredSize(new Dimension(25, 18));
             seat.setFont(new Font("Arial", Font.BOLD, 9));
             seat.setOpaque(true);
-            seat.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+            seat.setBackground(AVAILABLE_COLOR);
+            seat.setBorder(BorderFactory.createLineBorder(new Color(150, 150, 150)));
             seat.setCursor(new Cursor(Cursor.HAND_CURSOR));
-
             seat.addMouseListener(new MouseAdapter() {
                 @Override
                 public void mouseClicked(MouseEvent e) {
@@ -221,24 +312,32 @@ public class SeatingPage extends JPanel {
             seatButtons.put(seatCode, seat);
             lowerRow.add(seat);
         }
+        lowerRow.add(Box.createHorizontalStrut(row.equals("M") ? 66 : 25));
         rowPanel.add(lowerRow);
+
         return rowPanel;
     }
 
     private JPanel createSideBalcony(String row1, int start1, int end1, String row2, int start2, int end2) {
-        JPanel balcony = new JPanel(new GridLayout(1, 2, 1, 1));
+        JPanel balcony = new JPanel(new GridLayout(1, 2, 5, 5));
+        balcony.setBackground(Color.WHITE);
+
         JPanel panel1 = new JPanel();
         panel1.setLayout(new BoxLayout(panel1, BoxLayout.Y_AXIS));
-        panel1.add(new JLabel(row1, SwingConstants.CENTER));
+        panel1.setBackground(Color.WHITE);
+        JLabel label1 = new JLabel(row1, SwingConstants.CENTER);
+        label1.setFont(new Font("Arial", Font.BOLD, 12));
+        label1.setForeground(new Color(33, 33, 33));
+        panel1.add(label1);
         for (int i = end1; i >= start1; i--) {
             String seatCode = row1 + i;
             JLabel seat = new JLabel(String.valueOf(i), SwingConstants.CENTER);
-            seat.setPreferredSize(new Dimension(25, 18));
-            seat.setFont(new Font("Arial", Font.BOLD, 9));
+            seat.setPreferredSize(new Dimension(40, 30));
+            seat.setFont(new Font("Arial", Font.BOLD, 12));
             seat.setOpaque(true);
-            seat.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+            seat.setBackground(AVAILABLE_COLOR);
+            seat.setBorder(BorderFactory.createLineBorder(new Color(150, 150, 150)));
             seat.setCursor(new Cursor(Cursor.HAND_CURSOR));
-
             seat.addMouseListener(new MouseAdapter() {
                 @Override
                 public void mouseClicked(MouseEvent e) {
@@ -247,21 +346,26 @@ public class SeatingPage extends JPanel {
             });
             seatButtons.put(seatCode, seat);
             panel1.add(seat);
+            panel1.add(Box.createVerticalStrut(2));
         }
         balcony.add(panel1);
 
         JPanel panel2 = new JPanel();
         panel2.setLayout(new BoxLayout(panel2, BoxLayout.Y_AXIS));
-        panel2.add(new JLabel(row2, SwingConstants.CENTER));
+        panel2.setBackground(Color.WHITE);
+        JLabel label2 = new JLabel(row2, SwingConstants.CENTER);
+        label2.setFont(new Font("Arial", Font.BOLD, 12));
+        label2.setForeground(new Color(33, 33, 33));
+        panel2.add(label2);
         for (int i = end2; i >= start2; i--) {
             String seatCode = row2 + i;
             JLabel seat = new JLabel(String.valueOf(i), SwingConstants.CENTER);
-            seat.setPreferredSize(new Dimension(25, 18));
-            seat.setFont(new Font("Arial", Font.BOLD, 9));
+            seat.setPreferredSize(new Dimension(40, 30));
+            seat.setFont(new Font("Arial", Font.BOLD, 12));
             seat.setOpaque(true);
-            seat.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+            seat.setBackground(AVAILABLE_COLOR);
+            seat.setBorder(BorderFactory.createLineBorder(new Color(150, 150, 150)));
             seat.setCursor(new Cursor(Cursor.HAND_CURSOR));
-
             seat.addMouseListener(new MouseAdapter() {
                 @Override
                 public void mouseClicked(MouseEvent e) {
@@ -270,21 +374,18 @@ public class SeatingPage extends JPanel {
             });
             seatButtons.put(seatCode, seat);
             panel2.add(seat);
+            panel2.add(Box.createVerticalStrut(2));
         }
         balcony.add(panel2);
+
         return balcony;
     }
 
     private JPanel createSmallHallPanel() {
-        JPanel panel = new JPanel(new BorderLayout());
-        panel.setBackground(Color.WHITE);
-
-        // Main panel with modern look
         JPanel mainPanel = new JPanel(new BorderLayout());
         mainPanel.setBackground(Color.WHITE);
-        mainPanel.setBorder(BorderFactory.createLineBorder(new Color(33, 33, 33), 2));
+        mainPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
 
-        // Sound Desk (top-right, modern dark gray box)
         JPanel soundDeskPanel = new JPanel(new BorderLayout());
         JLabel soundDeskLabel = new JLabel("SOUND DESK", SwingConstants.CENTER);
         soundDeskLabel.setFont(new Font("Arial", Font.BOLD, 14));
@@ -292,7 +393,6 @@ public class SeatingPage extends JPanel {
         soundDeskLabel.setBackground(new Color(50, 50, 50));
         soundDeskLabel.setOpaque(true);
         soundDeskLabel.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
-
         JPanel soundDeskContainer = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         soundDeskContainer.setBackground(Color.WHITE);
         soundDeskContainer.add(soundDeskLabel);
@@ -300,11 +400,9 @@ public class SeatingPage extends JPanel {
         soundDeskPanel.setBackground(Color.WHITE);
         mainPanel.add(soundDeskPanel, BorderLayout.NORTH);
 
-        // Center panel for aisle and seating
         JPanel centerPanel = new JPanel(new BorderLayout());
         centerPanel.setBackground(Color.WHITE);
 
-        // Left panel for aisle and entrance
         JPanel leftPanel = new JPanel();
         leftPanel.setLayout(new BoxLayout(leftPanel, BoxLayout.Y_AXIS));
         leftPanel.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
@@ -313,22 +411,17 @@ public class SeatingPage extends JPanel {
         JPanel entrancePanel = new JPanel();
         entrancePanel.setLayout(new BoxLayout(entrancePanel, BoxLayout.Y_AXIS));
         entrancePanel.setBackground(Color.WHITE);
-
         JLabel arrowLabel = new JLabel("↑");
         arrowLabel.setFont(new Font("Arial", Font.BOLD, 18));
         arrowLabel.setForeground(new Color(33, 150, 243));
         arrowLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-
         JLabel entranceLabel = new JLabel("ENTRANCE");
         entranceLabel.setFont(new Font("Arial", Font.BOLD, 12));
         entranceLabel.setForeground(new Color(33, 33, 33));
         entranceLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-
         entrancePanel.add(arrowLabel);
         entrancePanel.add(entranceLabel);
-        entrancePanel.setAlignmentX(Component.CENTER_ALIGNMENT);
         leftPanel.add(entrancePanel);
-
         leftPanel.add(Box.createVerticalGlue());
 
         JPanel aisleTextPanel = new JPanel() {
@@ -345,24 +438,16 @@ public class SeatingPage extends JPanel {
         };
         aisleTextPanel.setPreferredSize(new Dimension(30, 150));
         aisleTextPanel.setBackground(Color.WHITE);
-        aisleTextPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
         leftPanel.add(aisleTextPanel);
-
         leftPanel.add(Box.createVerticalGlue());
 
         centerPanel.add(leftPanel, BorderLayout.WEST);
 
-        // Stalls Section
-        JPanel stallsPanel = new JPanel();
-        stallsPanel.setLayout(new BoxLayout(stallsPanel, BoxLayout.PAGE_AXIS));
+        JPanel stallsPanel = new JPanel(new GridLayout(13, 1, 5, 5));
         stallsPanel.setBackground(Color.WHITE);
+        stallsPanel.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
 
-        JPanel rowsPanel = new JPanel();
-        rowsPanel.setLayout(new GridLayout(13, 1, 2, 2));
-        rowsPanel.setBackground(Color.WHITE);
-
-        // Row N (seats 1-4, shifted left)
-        JPanel rowN = new JPanel(new FlowLayout(FlowLayout.LEFT, 2, 2));
+        JPanel rowN = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
         rowN.setBackground(Color.WHITE);
         rowN.add(Box.createHorizontalStrut(20));
         JLabel rowNLabel = new JLabel("N");
@@ -373,11 +458,10 @@ public class SeatingPage extends JPanel {
             String seatCode = "N" + i;
             JLabel seat = new JLabel(String.valueOf(i), SwingConstants.CENTER);
             seat.setPreferredSize(new Dimension(28, 22));
-            seat.setFont(new Font("Arial", Font.PLAIN, 10));
+            seat.setFont(new Font("Arial", Font.BOLD, 10));
             seat.setOpaque(true);
-            seat.setBackground(new Color(200, 230, 201));
-            seat.setForeground(new Color(33, 33, 33));
-            seat.setBorder(BorderFactory.createLineBorder(new Color(150, 150, 150), 1));
+            seat.setBackground(AVAILABLE_COLOR);
+            seat.setBorder(BorderFactory.createLineBorder(new Color(150, 150, 150)));
             seat.setCursor(new Cursor(Cursor.HAND_CURSOR));
             seat.addMouseListener(new MouseAdapter() {
                 @Override
@@ -388,10 +472,9 @@ public class SeatingPage extends JPanel {
             seatButtons.put(seatCode, seat);
             rowN.add(seat);
         }
-        rowsPanel.add(rowN);
+        stallsPanel.add(rowN);
 
-        // Row M (seats 1-4)
-        JPanel rowM = new JPanel(new FlowLayout(FlowLayout.LEFT, 2, 2));
+        JPanel rowM = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
         rowM.setBackground(Color.WHITE);
         rowM.add(Box.createHorizontalStrut(45));
         JLabel rowMLabel = new JLabel("M");
@@ -402,11 +485,10 @@ public class SeatingPage extends JPanel {
             String seatCode = "M" + i;
             JLabel seat = new JLabel(String.valueOf(i), SwingConstants.CENTER);
             seat.setPreferredSize(new Dimension(28, 22));
-            seat.setFont(new Font("Arial", Font.PLAIN, 10));
+            seat.setFont(new Font("Arial", Font.BOLD, 10));
             seat.setOpaque(true);
-            seat.setBackground(new Color(200, 230, 201));
-            seat.setForeground(new Color(33, 33, 33));
-            seat.setBorder(BorderFactory.createLineBorder(new Color(150, 150, 150), 1));
+            seat.setBackground(AVAILABLE_COLOR);
+            seat.setBorder(BorderFactory.createLineBorder(new Color(150, 150, 150)));
             seat.setCursor(new Cursor(Cursor.HAND_CURSOR));
             seat.addMouseListener(new MouseAdapter() {
                 @Override
@@ -417,12 +499,11 @@ public class SeatingPage extends JPanel {
             seatButtons.put(seatCode, seat);
             rowM.add(seat);
         }
-        rowsPanel.add(rowM);
+        stallsPanel.add(rowM);
 
-        // Rows L to A (seats 1-7, excluding I)
         char[] rowsToInclude = {'L', 'K', 'J', 'H', 'G', 'F', 'E', 'D', 'C', 'B', 'A'};
         for (char rowLetter : rowsToInclude) {
-            JPanel row = new JPanel(new FlowLayout(FlowLayout.LEFT, 2, 2));
+            JPanel row = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
             row.setBackground(Color.WHITE);
             row.add(Box.createHorizontalStrut(45));
             JLabel rowLabel = new JLabel("" + rowLetter);
@@ -433,11 +514,10 @@ public class SeatingPage extends JPanel {
                 String seatCode = rowLetter + String.valueOf(i);
                 JLabel seat = new JLabel(String.valueOf(i), SwingConstants.CENTER);
                 seat.setPreferredSize(new Dimension(28, 22));
-                seat.setFont(new Font("Arial", Font.PLAIN, 10));
+                seat.setFont(new Font("Arial", Font.BOLD, 10));
                 seat.setOpaque(true);
-                seat.setBackground(new Color(200, 230, 201));
-                seat.setForeground(new Color(33, 33, 33));
-                seat.setBorder(BorderFactory.createLineBorder(new Color(150, 150, 150), 1));
+                seat.setBackground(AVAILABLE_COLOR);
+                seat.setBorder(BorderFactory.createLineBorder(new Color(150, 150, 150)));
                 seat.setCursor(new Cursor(Cursor.HAND_CURSOR));
                 seat.addMouseListener(new MouseAdapter() {
                     @Override
@@ -448,32 +528,39 @@ public class SeatingPage extends JPanel {
                 seatButtons.put(seatCode, seat);
                 row.add(seat);
             }
-            rowsPanel.add(row);
+            stallsPanel.add(row);
         }
 
-        stallsPanel.add(rowsPanel);
         centerPanel.add(stallsPanel, BorderLayout.CENTER);
         mainPanel.add(centerPanel, BorderLayout.CENTER);
 
-        // Stage
         JPanel stagePanel = new JPanel(new BorderLayout());
         stagePanel.setBackground(Color.WHITE);
+
+        JPanel stageContainer = new JPanel(new BorderLayout());
+        stageContainer.setBackground(Color.WHITE);
+        stageContainer.setMaximumSize(new Dimension(200, Integer.MAX_VALUE));
+
         JLabel stageLabel = new JLabel("STAGE", SwingConstants.CENTER);
-        stageLabel.setFont(new Font("Arial", Font.BOLD, 22));
-        stageLabel.setForeground(Color.WHITE);
-        stageLabel.setBackground(new Color(62, 116, 70));
+        stageLabel.setFont(new Font("Arial", Font.BOLD, 20));
+        stageLabel.setForeground(Color.BLACK);
+        stageLabel.setBackground(Color.LIGHT_GRAY);
         stageLabel.setOpaque(true);
-        stageLabel.setBorder(BorderFactory.createEmptyBorder(5, 0, 5, 0));
-        stagePanel.add(stageLabel, BorderLayout.CENTER);
+        stageLabel.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
+
+        stageContainer.add(Box.createRigidArea(new Dimension(5, 0)), BorderLayout.WEST);
+        stageContainer.add(stageLabel, BorderLayout.CENTER);
+        stageContainer.add(Box.createRigidArea(new Dimension(5, 0)), BorderLayout.EAST);
+
+        stagePanel.add(stageContainer, BorderLayout.CENTER);
         mainPanel.add(stagePanel, BorderLayout.SOUTH);
 
-        panel.add(mainPanel, BorderLayout.CENTER);
-        return panel;
+        return mainPanel;
     }
 
     private void showSeatOptions(String seatCode, JLabel seatLabel) {
         JPopupMenu popup = new JPopupMenu();
-        String[] options = {"Available", "Occupied", "Restricted", "Companion", "Disability"};
+        String[] options = {"Available", "Occupied", "Restricted", "Companion", "Disability", "Discounted"};
         for (String option : options) {
             JMenuItem item = new JMenuItem(option);
             switch(option.toLowerCase()) {
@@ -494,6 +581,9 @@ public class SeatingPage extends JPanel {
                     break;
                 case "disability":
                     item.setBackground(DISABILITY_COLOR);
+                    break;
+                case "discounted":
+                    item.setBackground(DISCOUNTED_COLOR);
                     break;
             }
             item.setOpaque(true);
@@ -549,6 +639,9 @@ public class SeatingPage extends JPanel {
                     }
                 }
                 break;
+            case "discounted":
+                backgroundColor = DISCOUNTED_COLOR;
+                break;
             default:
                 backgroundColor = Color.LIGHT_GRAY;
         }
@@ -580,8 +673,8 @@ public class SeatingPage extends JPanel {
 
         try {
             for (JLabel label : seatButtons.values()) {
-                label.setBackground(UIManager.getColor("Label.background"));
-                label.setForeground(UIManager.getColor("Label.foreground"));
+                label.setBackground(AVAILABLE_COLOR);
+                label.setForeground(Color.BLACK);
                 label.setOpaque(true);
             }
             seatStatuses.clear();
@@ -616,7 +709,7 @@ public class SeatingPage extends JPanel {
                 JLabel seatLabel = seatButtons.get(seatCode);
                 if (seatLabel != null) {
                     String status = isWheelchair ? "Disability" : isCompanion ? "Companion" : isRestricted ? "Restricted" : "Available";
-                    seatStatuses.put(seatCode, status);
+                    updateSeatStatus(seatCode, seatLabel, status);
                 }
             }
 
@@ -633,17 +726,13 @@ public class SeatingPage extends JPanel {
             while (rs.next()) {
                 String seatCode = rs.getString("Seat_Code");
                 String status = rs.getString("Status");
-                if (status.equals("Reserved") || status.equals("Sold")) {
-                    seatStatuses.put(seatCode, "Occupied");
-                }
-            }
-
-            for (Map.Entry<String, String> entry : seatStatuses.entrySet()) {
-                String seatCode = entry.getKey();
-                String status = entry.getValue();
                 JLabel seatLabel = seatButtons.get(seatCode);
                 if (seatLabel != null) {
-                    updateSeatStatus(seatCode, seatLabel, status);
+                    if (status.equals("Sold") || status.equals("Reserved")) {
+                        updateSeatStatus(seatCode, seatLabel, "Occupied");
+                    } else if (status.equals("Discounted")) {
+                        updateSeatStatus(seatCode, seatLabel, "Discounted");
+                    }
                 }
             }
 
@@ -692,10 +781,13 @@ public class SeatingPage extends JPanel {
                     case "occupied":
                         dbStatus = "Sold";
                         break;
+                    case "discounted":
+                        dbStatus = "Discounted";
+                        break;
+                    case "available":
                     case "restricted":
                     case "companion":
                     case "disability":
-                    case "available":
                         dbStatus = "Available";
                         break;
                     default:
@@ -703,7 +795,7 @@ public class SeatingPage extends JPanel {
                 }
 
                 Integer seatId = seatCodeToIdMap.get(seatCode);
-                if (seatId != null) {
+                if (seatId != null && !dbStatus.equals("Available")) {
                     psInsert.setInt(1, seatId);
                     psInsert.setInt(2, selectedShowId);
                     psInsert.setString(3, dbStatus);
