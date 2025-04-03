@@ -273,11 +273,18 @@ public class Dashboard {
         }
     }
 
-
     private static JPanel createSeatingPage() {
-
-        return new SeatingPage();
+        try {
+            return new SeatingPage();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JPanel errorPanel = new JPanel();
+            errorPanel.add(new JLabel("Database error: " + e.getMessage()));
+            return errorPanel;
+        }
     }
+
+
 
 
     private static JPanel createSettingsPage() {
