@@ -6,8 +6,9 @@ import java.awt.*;
 
 /**
  * Login
- * Will allow the User to Login with username and password
- * DB connection is a priority.
+ * Will allow the User(Muhammad) the Manager to Log in with username and password
+ * DB connection is a priority to allow successful login to dashboard.
+ * @author sameen
  */
 public class Login extends JFrame {
     private JTextField username;
@@ -17,8 +18,10 @@ public class Login extends JFrame {
     private JCheckBox showPassword;
 
     Login() {
+        //creation of the login frame
         setTitle("Lancaster's Music Hall");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        // set the standard size
         setSize(970, 600);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
@@ -28,6 +31,7 @@ public class Login extends JFrame {
         imagePanel.setPreferredSize(new Dimension(480, 400));
         imagePanel.setLayout(new BorderLayout());
 
+        // paste the lancasters logo on the left side to show the software.
         ImageIcon imageIcon = new ImageIcon("data/Lancaster'sLogo.png");
         Image image = imageIcon.getImage().getScaledInstance(480, 400, Image.SCALE_SMOOTH);
         JLabel imageLabel = new JLabel(new ImageIcon(image));
@@ -35,18 +39,20 @@ public class Login extends JFrame {
 
         imagePanel.add(imageLabel, BorderLayout.CENTER);
 
+        // create the panel and set the layout
         JPanel loginPanel = new JPanel();
         loginPanel.setBackground(new Color(229, 228, 226));
         loginPanel.setLayout(null);
 
+        // initialise the labels for the fields.
         labelUsername = new JLabel("Username ");
         labelUsername.setFont(new Font("Arial", Font.PLAIN, 20));
         labelUsername.setBounds(55, 150, 150, 30);
-
         labelPassword = new JLabel("Password ");
         labelPassword.setFont(new Font("Arial", Font.PLAIN, 20));
         labelPassword.setBounds(55, 200, 150, 30);
 
+        /// add in the text fields.
         username = new JTextField();
         username.setFont(new Font("Arial", Font.PLAIN, 15));
         username.setBounds(165, 150, 250, 30);
@@ -54,7 +60,6 @@ public class Login extends JFrame {
                 BorderFactory.createLineBorder(Color.GRAY, 2),
                 BorderFactory.createEmptyBorder(5, 10, 5, 10)
         ));
-
         password = new JPasswordField();
         password.setFont(new Font("Arial", Font.PLAIN, 15));
         password.setBounds(165, 200, 250, 30);
@@ -63,6 +68,7 @@ public class Login extends JFrame {
                 BorderFactory.createEmptyBorder(5, 10, 5, 10)
         ));
 
+        // the check box for show password.
         showPassword = new JCheckBox("Show Password");
         showPassword.setBounds(165, 240, 150, 30);
         showPassword.setFont(new Font("Arial", Font.PLAIN, 16));
@@ -70,6 +76,7 @@ public class Login extends JFrame {
             password.setEchoChar(showPassword.isSelected() ? (char) 0 : '*');
         });
 
+        // login button
         loginButton = new JButton("Login");
         loginButton.setBounds(165, 280, 100, 40);
         loginButton.addActionListener(e -> handleLogin());
@@ -82,6 +89,7 @@ public class Login extends JFrame {
                 BorderFactory.createEmptyBorder(5, 15, 5, 15)
         ));
 
+        // the reset button - clears all current fields
         resetButton = new JButton("Reset");
         resetButton.setBounds(275, 280, 100, 40);
         resetButton.addActionListener(e -> resetFields());
@@ -103,6 +111,7 @@ public class Login extends JFrame {
 
         loginPanel.setBorder(compoundBorder);
 
+        // implement button hover effects.
         loginButton.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
                 loginButton.setBackground(new Color(1, 25, 16));
@@ -111,7 +120,6 @@ public class Login extends JFrame {
                 loginButton.setBackground(new Color(2, 75, 48));
             }
         });
-
         resetButton.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
                 resetButton.setBackground(new Color(1, 25, 16));
@@ -136,6 +144,8 @@ public class Login extends JFrame {
         setVisible(true);
     }
 
+
+    // initialise the connection from db to successfuly login.
     private void handleLogin() {
         String user = username.getText();
         String pass = new String(password.getPassword());
@@ -147,6 +157,7 @@ public class Login extends JFrame {
                 Dashboard.main(new String[]{});
             });
         } else {
+            // error handling
             message.setText("Invalid Username or Password");
             JOptionPane.showMessageDialog(this,
                     "Invalid login credentials!\nPlease check your username and password.",
@@ -154,7 +165,6 @@ public class Login extends JFrame {
                     JOptionPane.ERROR_MESSAGE);
         }
     }
-
     private void resetFields() {
         username.setText("");
         password.setText("");

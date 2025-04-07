@@ -13,7 +13,6 @@ import javax.swing.JLabel;
  */
 
 public class Label extends JLabel {
-
     public Color getColor1() {
         return color1;
     }
@@ -35,7 +34,6 @@ public class Label extends JLabel {
 
     public Label() {
     }
-
     @Override
     protected void paintComponent(Graphics g) {
         Graphics2D g2 = (Graphics2D) g.create();

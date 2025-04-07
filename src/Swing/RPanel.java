@@ -9,15 +9,12 @@ import java.awt.geom.Rectangle2D;
 import java.awt.geom.RoundRectangle2D;
 import javax.swing.JPanel;
 
-
 /**
  * The RPanel class is a custom JPanel with rounded corners and a gradient background.
  * It allows customization of the corner roundness and paints a gradient from one color to another.
  */
 
-
 public class RPanel extends JPanel {
-
     private int round;
 
     public RPanel() {
@@ -32,7 +29,6 @@ public class RPanel extends JPanel {
         this.round = round;
         repaint();
     }
-
     @Override
     protected void paintComponent(Graphics g) {
         Graphics2D g2 = (Graphics2D) g.create();

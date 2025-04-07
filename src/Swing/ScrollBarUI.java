@@ -19,36 +19,28 @@ import javax.swing.plaf.basic.BasicScrollBarUI;
  */
 
 public class ScrollBarUI extends BasicScrollBarUI {
-
     private final int THUMB_SIZE = 5;
     private final Color THUMB_COLOR = new Color(170, 170, 170);
     private final float ALPHA = 0.3f;
-
     public ScrollBarUI() {}
-
     @Override
     protected JButton createDecreaseButton(int orientation) {
         return new InvisibleScrollBarButton();
     }
-
     @Override
     protected JButton createIncreaseButton(int orientation) {
         return new InvisibleScrollBarButton();
     }
-
     @Override
     protected void paintTrack(Graphics g, JComponent c, Rectangle trackBounds) {}
-
     @Override
     public Dimension getMaximumThumbSize() {
         return new Dimension(0, (int) (scrollbar.getHeight() * 0.4f));
     }
-
     @Override
     protected Dimension getMinimumThumbSize() {
         return new Dimension(0, 75);
     }
-
     @Override
     protected void paintThumb(Graphics g, JComponent c, Rectangle thumbBounds) {
         if (scrollbar.getVisibleAmount() != scrollbar.getMaximum()) {

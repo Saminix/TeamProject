@@ -12,7 +12,6 @@ import javax.swing.table.DefaultTableModel;
  * A method to add rows and adjust scroll behavior.
  */
 public class Table extends JTable {
-
     public Table() {
         setShowHorizontalLines(true);
         setGridColor(new Color(230, 230, 230));
@@ -20,16 +19,12 @@ public class Table extends JTable {
         getTableHeader().setReorderingAllowed(false);
         getTableHeader().setDefaultRenderer(new DefaultTableCellRenderer() {
             @Override
-            public Component getTableCellRendererComponent(JTable jtable, Object o, boolean bln, boolean bln1, int i, int i1) {
-                TableHead header = new TableHead(o + "");
-                return header;
+            public Component getTableCellRendererComponent(JTable jtable, Object o, boolean bln, boolean bln1, int i, int i1) {TableHead header = new TableHead(o + "");return header;
             }
         });
         setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
             @Override
-            public Component getTableCellRendererComponent(JTable jtable, Object o, boolean selected, boolean bln1, int i, int i1) {
-                Component com = super.getTableCellRendererComponent(jtable, o, selected, bln1, i, i1);
-                com.setBackground(Color.WHITE);
+            public Component getTableCellRendererComponent(JTable jtable, Object o, boolean selected, boolean bln1, int i, int i1) {Component com = super.getTableCellRendererComponent(jtable, o, selected, bln1, i, i1);com.setBackground(Color.WHITE);
                 setBorder(noFocusBorder);
                 if (selected) {
                     com.setForeground(SystemColour.MAIN_COLOR_1);

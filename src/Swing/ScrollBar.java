@@ -8,9 +8,7 @@ import javax.swing.JScrollBar;
  * It uses a custom ScrollBarUI for styling, sets a small preferred size,
  *
  */
-
 public class ScrollBar extends JScrollBar {
-
     public ScrollBar() {
         setUI(new ScrollBarUI());
         setPreferredSize(new Dimension(5, 5));

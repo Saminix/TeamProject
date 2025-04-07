@@ -7,9 +7,9 @@ import java.awt.event.*;
 import java.io.File;
 /**
  * NavigationBar is for subpages and easy navigation.
- *
+ * These subpages are of Pages: Patron, reports, tickets, seating and Refunds
+ * CardLayout is used to manage these contents
  */
-
 public class NavigationBar extends JPanel {
     private static final Color PRIMARY_COLOR = new Color(60, 90, 153);
     private static final Color CARD_COLOR = new Color(255, 255, 255);
@@ -19,6 +19,12 @@ public class NavigationBar extends JPanel {
     private CardLayout cardLayout;
     private JPanel contentPanel;
     private JPanel selectedNavItem = null;
+
+    /**
+     * Navigation bar is intialised to create navigation items
+     * @param cardLayout content panels
+     * @param contentPanel
+     */
 
     public NavigationBar(CardLayout cardLayout, JPanel contentPanel) {
         this.cardLayout = cardLayout;
@@ -43,6 +49,10 @@ public class NavigationBar extends JPanel {
         add(scrollPane, BorderLayout.CENTER);
     }
 
+    /**
+     * Muhammad's(Managers profile panel at the top of the navigation bar
+     * @return the profile information
+     */
     private JPanel createProfilePanel() {
         JPanel profilePanel = new JPanel(new BorderLayout());
         profilePanel.setBackground(CARD_COLOR);
@@ -86,6 +96,10 @@ public class NavigationBar extends JPanel {
         return profilePanel;
     }
 
+    /**
+     * create navigation bar with related pages
+     * @return Navigation bar panel
+     */
     private JPanel createNavigationPanel() {
         JPanel navPanel = new JPanel();
         navPanel.setLayout(new BoxLayout(navPanel, BoxLayout.Y_AXIS));
@@ -103,7 +117,6 @@ public class NavigationBar extends JPanel {
                 "Resources/refund.png",
                 "Resources/settings.png"
         };
-
 
 
         for (int i = 0; i < navItems.length; i++) {
@@ -130,6 +143,9 @@ public class NavigationBar extends JPanel {
 
         return navPanel;
     }
+
+
+
 
     private JPanel createNavItem(ImageIcon icon, String text, boolean selected) {
         JPanel navItem = new JPanel(new BorderLayout());
@@ -176,6 +192,10 @@ public class NavigationBar extends JPanel {
 
         return navItem;
     }
+
+    /**
+     * add extra highlighting effects for the hover of switching between nav panels.
+     */
 
     private class NavItemClickListener extends MouseAdapter {
         @Override
