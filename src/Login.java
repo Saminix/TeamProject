@@ -28,16 +28,21 @@ public class Login extends JFrame {
 
         JPanel imagePanel = new JPanel();
         imagePanel.setBackground(new Color(17, 32, 35));
-        imagePanel.setPreferredSize(new Dimension(480, 400));
+        imagePanel.setPreferredSize(new Dimension(480, 360));
         imagePanel.setLayout(new BorderLayout());
 
         // paste the lancasters logo on the left side to show the software.
-        ImageIcon imageIcon = new ImageIcon("data/Lancaster'sLogo.png");
-        Image image = imageIcon.getImage().getScaledInstance(480, 400, Image.SCALE_SMOOTH);
-        JLabel imageLabel = new JLabel(new ImageIcon(image));
-        imageLabel.setHorizontalAlignment(JLabel.CENTER);
+        // Load the image as a resource from the classpath
+        ImageIcon imageIcon = new ImageIcon(Login.class.getResource("/Resources/Lancaster'sLogo.png"));
+        if (imageIcon.getImageLoadStatus() != MediaTracker.COMPLETE) {
+            System.err.println("Image failed to load!");
+        } else {
+            Image image = imageIcon.getImage().getScaledInstance(450, 380, Image.SCALE_SMOOTH);
+            JLabel imageLabel = new JLabel(new ImageIcon(image));
+            imageLabel.setHorizontalAlignment(JLabel.CENTER);
+            imagePanel.add(imageLabel, BorderLayout.CENTER);
+        }
 
-        imagePanel.add(imageLabel, BorderLayout.CENTER);
 
         // create the panel and set the layout
         JPanel loginPanel = new JPanel();

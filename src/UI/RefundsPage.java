@@ -265,11 +265,12 @@ public class RefundsPage extends JPanel {
     // query to find all bookings - so refund is recorded in bookings and tickets data.
     private ResultSet getAllBookings() throws SQLException {
         String query = "SELECT b.Booking_ID, CONCAT(p.First_Name, ' ', p.Last_Name) AS Patron_Name, " +
-                "b.TotalCost, b.Booking_Date, b.IsCancelled, pm.IsRefunded " +
+                "b.TotalCost, b.Booking_Date, b.IsCancelled, " +
+                "CASE WHEN pm.IsRefunded IS NULL THEN 0 ELSE pm.IsRefunded END as IsRefunded " +
                 "FROM Booking b " +
                 "LEFT JOIN Payment pm ON b.Booking_ID = pm.Booking_ID " +
                 "LEFT JOIN Patron p ON b.Patron_ID = p.Patron_ID " +
-                "WHERE b.IsCancelled = 0 AND pm.IsRefunded = 0";
+                "WHERE b.IsCancelled = 1 AND (pm.IsRefunded = 0 OR pm.IsRefunded IS NULL)";
         PreparedStatement statement = connection.prepareStatement(query);
         return statement.executeQuery();
     }
@@ -295,22 +296,69 @@ public class RefundsPage extends JPanel {
      * @return update true/false
      */
     private boolean markBookingAsRefunded(int bookingId) {
-        String query = "UPDATE Booking SET IsCancelled = 1, Seat_ID = NULL WHERE Booking_ID = ?";
-        try (PreparedStatement stmt = connection.prepareStatement(query)) {
-            stmt.setInt(1, bookingId);
-            return stmt.executeUpdate() > 0;
+        // First check if the booking exists
+        try {
+            PreparedStatement checkStmt = connection.prepareStatement(
+                    "SELECT IsCancelled FROM Booking WHERE Booking_ID = ?");
+            checkStmt.setInt(1, bookingId);
+            ResultSet rs = checkStmt.executeQuery();
+
+            if (!rs.next()) {
+                return false;
+            }
+
+            boolean alreadyCancelled = rs.getInt("IsCancelled") == 1;
+            rs.close();
+            checkStmt.close();
+
+            if (alreadyCancelled) {
+                return true;
+            }
+
+            PreparedStatement updateStmt = connection.prepareStatement(
+                    "UPDATE Booking SET IsCancelled = 1, Seat_ID = NULL WHERE Booking_ID = ?");
+            updateStmt.setInt(1, bookingId);
+            return updateStmt.executeUpdate() > 0;
+
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
         }
     }
 
+
     // mark as refunded 
     private boolean markPaymentAsRefunded(int bookingId) {
-        String query = "UPDATE Payment SET IsRefunded = 1 WHERE Booking_ID = ?";
-        try (PreparedStatement stmt = connection.prepareStatement(query)) {
-            stmt.setInt(1, bookingId);
-            return stmt.executeUpdate() > 0;
+        try {
+            // First check if payment exists
+            PreparedStatement checkStmt = connection.prepareStatement(
+                    "SELECT IsRefunded FROM Payment WHERE Booking_ID = ?");
+            checkStmt.setInt(1, bookingId);
+            ResultSet rs = checkStmt.executeQuery();
+
+            if (!rs.next()) {
+                PreparedStatement insertStmt = connection.prepareStatement(
+                        "INSERT INTO Payment (Payment_Method, Payment_Date, Amount_Paid, IsRefunded, Booking_ID, Patron_ID) " +
+                                "SELECT 'Refund', NOW(), -TotalCost, 1, Booking_ID, Patron_ID FROM Booking WHERE Booking_ID = ?");
+                insertStmt.setInt(1, bookingId);
+                return insertStmt.executeUpdate() > 0;
+            }
+
+            boolean alreadyRefunded = rs.getInt("IsRefunded") == 1;
+            rs.close();
+            checkStmt.close();
+
+            if (alreadyRefunded) {
+                // Already refunded, consider this a success
+                return true;
+            }
+
+            // Update the payment to refunded
+            PreparedStatement updateStmt = connection.prepareStatement(
+                    "UPDATE Payment SET IsRefunded = 1 WHERE Booking_ID = ?");
+            updateStmt.setInt(1, bookingId);
+            return updateStmt.executeUpdate() > 0;
+
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
@@ -319,10 +367,24 @@ public class RefundsPage extends JPanel {
 
     // mark the ticket is now unsold
     private boolean markTicketsAsUnsold(int bookingId) {
-        String query = "UPDATE Ticket SET IsSold = 0, Seat_ID = NULL WHERE Booking_ID = ?";
-        try (PreparedStatement stmt = connection.prepareStatement(query)) {
-            stmt.setInt(1, bookingId);
-            return stmt.executeUpdate() > 0;
+        try {
+            PreparedStatement checkStmt = connection.prepareStatement(
+                    "SELECT COUNT(*) FROM Ticket WHERE Booking_ID = ?");
+            checkStmt.setInt(1, bookingId);
+            ResultSet rs = checkStmt.executeQuery();
+            rs.next();
+            int ticketCount = rs.getInt(1);
+            rs.close();
+            checkStmt.close();
+
+            if (ticketCount == 0) {
+                return true;
+            }
+            PreparedStatement updateStmt = connection.prepareStatement(
+                    "UPDATE Ticket SET IsSold = 0, Seat_ID = NULL WHERE Booking_ID = ?");
+            updateStmt.setInt(1, bookingId);
+            return updateStmt.executeUpdate() > 0;
+
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
@@ -330,11 +392,25 @@ public class RefundsPage extends JPanel {
     }
     // seating will be updated.
     private boolean freeUpSeating(int bookingId) {
-        String query = "UPDATE Seat_Availability SET Status = 'Available', Booking_ID = NULL " +
-                "WHERE Booking_ID = ?";
-        try (PreparedStatement stmt = connection.prepareStatement(query)) {
-            stmt.setInt(1, bookingId);
-            return stmt.executeUpdate() > 0;
+        try {
+            PreparedStatement checkStmt = connection.prepareStatement(
+                    "SELECT COUNT(*) FROM Seat_Availability WHERE Booking_ID = ?");
+            checkStmt.setInt(1, bookingId);
+            ResultSet rs = checkStmt.executeQuery();
+            rs.next();
+            int seatCount = rs.getInt(1);
+            rs.close();
+            checkStmt.close();
+
+            if (seatCount == 0) {
+                return true;
+            }
+
+            PreparedStatement updateStmt = connection.prepareStatement(
+                    "UPDATE Seat_Availability SET Status = 'Available', Booking_ID = NULL WHERE Booking_ID = ?");
+            updateStmt.setInt(1, bookingId);
+            return updateStmt.executeUpdate() > 0;
+
         } catch (SQLException e) {
             e.printStackTrace();
             return false;

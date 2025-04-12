@@ -88,27 +88,36 @@ public class ReportsChartPanel extends JPanel {
             clearChart();
             return;
         }
+
+        System.out.println("Chart data rows available: " + tableModel.getRowCount());
+        for (int i = 0; i < tableModel.getRowCount(); i++) {
+            System.out.println("Row " + i + ": Month=" + tableModel.getValueAt(i, 0) +
+                    ", Revenue=" + tableModel.getValueAt(i, 3));  // Index 3 for Total Revenue
+        }
+
         String chartType = (String) chartTypeCombo.getSelectedItem();
         if ("Bar Chart".equals(chartType)) {
             DefaultCategoryDataset dataset = new DefaultCategoryDataset();
             for (int i = 0; i < tableModel.getRowCount(); i++) {
-                String date = tableModel.getValueAt(i, 0).toString();
-                double revenue = Double.parseDouble(tableModel.getValueAt(i, 4).toString());
-                dataset.addValue(revenue, "Revenue", date);
+                String month = tableModel.getValueAt(i, 0).toString();
+                // Use index 3 for Total Revenue instead of 4
+                double revenue = Double.parseDouble(tableModel.getValueAt(i, 3).toString().replace("£", "").trim());
+                dataset.addValue(revenue, "Revenue", month);
             }
             currentChart = ChartFactory.createBarChart(
-                    "Revenue by Date", "Date", "Revenue (£)", dataset, PlotOrientation.VERTICAL, true, true, false
+                    "Revenue by Month", "Month", "Revenue (£)", dataset, PlotOrientation.VERTICAL, true, true, false
             );
         } else if ("Pie Chart".equals(chartType)) {
             DefaultPieDataset dataset = new DefaultPieDataset();
             for (int i = 0; i < tableModel.getRowCount(); i++) {
-                String date = tableModel.getValueAt(i, 0).toString();
-                double revenue = Double.parseDouble(tableModel.getValueAt(i, 4).toString());
-                dataset.setValue(date, revenue);
+                String month = tableModel.getValueAt(i, 0).toString();
+                // Use index 3 for Total Revenue instead of 4
+                double revenue = Double.parseDouble(tableModel.getValueAt(i, 3).toString().replace("£", "").trim());
+                dataset.setValue(month, revenue);
             }
-            currentChart = ChartFactory.createPieChart("Revenue Distribution by Date", dataset, true, true, false
-            );
+            currentChart = ChartFactory.createPieChart("Revenue Distribution by Month", dataset, true, true, false);
         }
+
         if (currentChart != null) {
             currentChart.setBackgroundPaint(Color.WHITE);
             currentChart.getTitle().setFont(new Font("Segoe UI", Font.BOLD, 16));

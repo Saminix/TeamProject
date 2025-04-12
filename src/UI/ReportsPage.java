@@ -87,7 +87,7 @@ public class ReportsPage extends JPanel {
                 PRIMARY_COLOR
         ));
 
-        // Search filter and bar at the top of the reports page.
+        // search filter and bar at the top of the reports page.
         searchField = createStyledTextField("Search by show title...", 30);
         searchButton = createStyledButton("Search");
         exportCsvButton = createStyledButton("Export CSV");
@@ -101,8 +101,8 @@ public class ReportsPage extends JPanel {
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5);
         gbc.anchor = GridBagConstraints.WEST;
-        fromDateField = createStyledTextField("MM", 10);
-        toDateField = createStyledTextField("MM", 10);
+        fromDateField = createStyledTextField("01", 10);
+        toDateField = createStyledTextField("12", 10);
         showCombo = new JComboBox<>(loadShowTitles());
 
         gbc.gridx = 0; gbc.gridy = 0;sidePanel.add(new JLabel("From Month:"), gbc);gbc.gridx = 1;sidePanel.add(fromDateField, gbc);gbc.gridx = 0; gbc.gridy = 1;sidePanel.add(new JLabel("To Month:"), gbc);
@@ -121,7 +121,7 @@ public class ReportsPage extends JPanel {
         field.setForeground(Color.GRAY);
         field.addFocusListener(new java.awt.event.FocusAdapter() {
             public void focusGained(java.awt.event.FocusEvent evt) {
-                if (field.getText().equals(placeholder)) {
+                if (field.getText().equals(placeholder) && field.getForeground() == Color.GRAY) {
                     field.setText("");
                     field.setForeground(TEXT_COLOR);
                 }
@@ -216,12 +216,11 @@ public class ReportsPage extends JPanel {
      * Retrieves data for dates, shows.etc.
      */
     private void loadReportData() {
-        // query for this data
         String query = "SELECT MONTHNAME(s.Show_Date) as Month, s.Show_Title, " +
                 "COUNT(t.Ticket_ID) as Tickets_Sold, " +
-                "SUM(t.Ticket_Price) as Total_Revenue, " +
-                "SUM(b.Discount_Applied) as Discounts_Applied, " +
-                "SUM(CASE WHEN p.IsRefunded = 1 THEN t.Ticket_Price ELSE 0 END) as Refunds " +
+                "COALESCE(SUM(t.Ticket_Price), 0) as Total_Revenue, " +
+                "COALESCE(SUM(b.Discount_Applied), 0) as Discounts_Applied, " +
+                "COALESCE(SUM(CASE WHEN p.IsRefunded = 1 THEN t.Ticket_Price ELSE 0 END), 0) as Refunds " +
                 "FROM Shows s " +
                 "LEFT JOIN Ticket t ON s.Show_ID = t.Show_ID " +
                 "LEFT JOIN Booking b ON t.Booking_ID = b.Booking_ID " +
@@ -233,12 +232,12 @@ public class ReportsPage extends JPanel {
         try (PreparedStatement stmt = connection.prepareStatement(query);
              ResultSet rs = stmt.executeQuery()) {
             tableModel.setRowCount(0);
+            System.out.println("Query Results:");
             while (rs.next()) {
                 double totalRevenue = rs.getDouble("Total_Revenue");
                 double discounts = rs.getDouble("Discounts_Applied");
                 double refunds = rs.getDouble("Refunds");
                 double profit = totalRevenue - discounts - refunds;
-                // form into objects
                 Object[] row = {
                         rs.getString("Month"),
                         rs.getString("Show_Title"),
@@ -248,9 +247,23 @@ public class ReportsPage extends JPanel {
                         String.format("%.2f", refunds),
                         String.format("%.2f", profit)
                 };
+                System.out.println("Row: " + java.util.Arrays.toString(row));
                 tableModel.addRow(row);
             }
-        }catch (SQLException e) {e.printStackTrace();JOptionPane.showMessageDialog(this, "Failed to load reports: " + e.getMessage(),
+            // Debug table model contents after loading
+            System.out.println("Table Model Rows After Load: " + tableModel.getRowCount());
+            for (int i = 0; i < tableModel.getRowCount(); i++) {
+                System.out.println("Table Row " + i + ": " + java.util.Arrays.toString(
+                        new Object[] {
+                                tableModel.getValueAt(i, 0), tableModel.getValueAt(i, 1), tableModel.getValueAt(i, 2),
+                                tableModel.getValueAt(i, 3), tableModel.getValueAt(i, 4), tableModel.getValueAt(i, 5),
+                                tableModel.getValueAt(i, 6)
+                        }
+                ));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Failed to load reports: " + e.getMessage(),
                     "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
@@ -260,6 +273,9 @@ public class ReportsPage extends JPanel {
         String selectedShow = (String) showCombo.getSelectedItem();
         String from = fromDateField.getText().trim();
         String to = toDateField.getText().trim();
+
+        System.out.println("Applying Filters: Search=" + searchText + ", Show=" + selectedShow + ", From=" + from + ", To=" + to);
+
         sorter.setRowFilter(new RowFilter<DefaultTableModel, Integer>() {
             @Override
             public boolean include(Entry<? extends DefaultTableModel, ? extends Integer> entry) {
@@ -269,23 +285,42 @@ public class ReportsPage extends JPanel {
                         showTitle.contains(searchText);
                 boolean matchesShow = "All Shows".equals(selectedShow) || showTitle.equalsIgnoreCase(selectedShow);
                 boolean matchesMonth = true;
+
                 try {
                     DateTimeFormatter monthFormat = DateTimeFormatter.ofPattern("MMMM");
                     LocalDate tempDate = LocalDate.parse(monthStr.substring(0, 1).toUpperCase() + monthStr.substring(1) + " 1", monthFormat);
                     int monthNum = tempDate.getMonthValue();
 
-                    if (!from.isEmpty() && !"mm".equalsIgnoreCase(from)) {
+                    if (!from.isEmpty() && !"mm".equalsIgnoreCase(from) && from.matches("\\d{1,2}")) {
                         int fromMonth = Integer.parseInt(from);
-                        matchesMonth &= monthNum >= fromMonth;
+                        if (fromMonth >= 1 && fromMonth <= 12) {
+                            matchesMonth &= monthNum >= fromMonth;
+                        }
                     }
-                    if (!to.isEmpty() && !"mm".equalsIgnoreCase(to)) {
+                    if (!to.isEmpty() && !"mm".equalsIgnoreCase(to) && to.matches("\\d{1,2}")) {
                         int toMonth = Integer.parseInt(to);
-                        matchesMonth &= monthNum <= toMonth;
+                        if (toMonth >= 1 && toMonth <= 12) {
+                            matchesMonth &= monthNum <= toMonth;
+                        }
                     }
-                } catch (Exception ex) {matchesMonth = true;
-                } return matchesSearch && matchesShow && matchesMonth;
+                } catch (Exception ex) {
+                    matchesMonth = true;
+                }
+                boolean include = matchesSearch && matchesShow && matchesMonth;
+                System.out.println("Filter Check: Month=" + monthStr + ", Show=" + showTitle + ", Include=" + include);
+                return include;
             }
         });
+        System.out.println("Table Model Rows After Filter: " + tableModel.getRowCount());
+        for (int i = 0; i < tableModel.getRowCount(); i++) {
+            System.out.println("Filtered Row " + i + ": " + java.util.Arrays.toString(
+                    new Object[] {
+                            tableModel.getValueAt(i, 0), tableModel.getValueAt(i, 1), tableModel.getValueAt(i, 2),
+                            tableModel.getValueAt(i, 3), tableModel.getValueAt(i, 4), tableModel.getValueAt(i, 5),
+                            tableModel.getValueAt(i, 6)
+                    }
+            ));
+        }
     }
     /**
      * Exports a CSV file for based reports
